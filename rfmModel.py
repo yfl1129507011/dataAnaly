@@ -12,8 +12,7 @@ data = pandas.read_excel(
     [0, 1, 2, 3]   # 选定所需的列
 )
 data = pandas.concat(data)  # 合并数据
-print(data)
-exit()
+
 priceList = {
     '高达卫士': 4499,
     '高达P': 4499,
@@ -29,10 +28,13 @@ data['price'] = data['product_name'].map(str.upper).map(priceList)  # 数据转�
 # 计算交易时间距离现在的天数
 data['dataDiff'] = pandas.to_datetime('today')-data['sale_date']
 data['dataDiff'] = data['dataDiff'].dt.days
+
+#fiveData = data.head()   # 获取前五行数据
+
 # 计算R值(每个客户距离现在最近的天数)
 R_agg = data.groupby(by=['mobile'])['dataDiff'].agg(
     [
-        ('RecencyAgg', np.min)
+        ('RecencyAgg', 'min')
     ]
 )
 
@@ -53,24 +55,24 @@ M_agg = data.groupby(['mobile'])['price'].agg(
 # 将RFM的各个值连起来
 aggData = R_agg.join(F_agg).join(M_agg)
 
-# 计算R的阀值系数
-bins = aggData.RecencyAgg.quantile(
-    q=[0, 0.2, 0.4, 0.6, 0.8, 1],
-    interpolation='nearest'
-)
-labels = [5, 4, 3, 2, 1]
-R_S = pandas.cut(
-    aggData.RecencyAgg,
-    bins, labels=labels
-)
+# 计算R的阀值系数  大于R平均数为0，否则是1
+aggData.RecencyAgg = np.where(aggData.RecencyAgg > np.average(aggData.RecencyAgg), 0, 1)
 
-# 计算F的阀值系数
-bins = aggData.MonetaryAgg.quantile(
-    q=[0, 0.2, 0.4, 0.6, 0.8, 1],
-    interpolation='nearest'
-)
-labels = [1, 2, 3, 4, 5]
-F_S = pandas.cut(
-    aggData.FrequencyAgg,
-    bins, labels=labels
-)
+# 计算F的阀值系数  大于F平均数为1，否则是0
+aggData.FrequencyAgg = np.where(aggData.FrequencyAgg > np.average(aggData.FrequencyAgg), 1, 0)
+
+# 计算M的阀值系数  大于F平均数为1，否则是0
+aggData.MonetaryAgg = np.where(aggData.MonetaryAgg > np.average(aggData.MonetaryAgg), 1, 0)
+
+RFM = aggData.groupby(['RecencyAgg', 'FrequencyAgg', 'MonetaryAgg']).size()
+print(aggData)
+
+# RecencyAgg  FrequencyAgg  MonetaryAgg
+# 0           0             0                37
+# 0           0             1              3240
+# 0           1             0                 2
+# 0           1             1               222
+# 1           0             0              2037
+# 1           0             1              2025
+# 1           1             0               380
+# 1           1             1               463
