@@ -95,5 +95,3 @@ aggData['RFM'] = 100*R_S.astype(int) + 10*F_S.astype(int) + 1*M_S.astype(int)
 # 将数据导入到RFM.csv文件中
 aggData.to_csv('RFM.csv', encoding='utf-8')
 
-print(aggData)
-
