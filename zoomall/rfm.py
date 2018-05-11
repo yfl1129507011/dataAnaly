@@ -1,3 +1,4 @@
+# -*- encoding: utf-8 -*-
 import numpy as np
 import pandas as pd
 
@@ -12,9 +13,11 @@ dataArr = []
 for f in fArr:
     data = pd.read_csv(
         f,
+        # header=0,  # 指定行为列名。默认为0表示第一行为列名，如果为None则使用索引数字号表示列名(如:0,1,2)
         # index_col='买家会员名',  # 指定列为索引
         # skiprows=[2, 4],  # 忽略指定的行
         usecols=use_cols,  # 指定使用的列数据
+        # encoding='ansi'  # 指定文件的编码格式
     )
     data = data[data['买家实际支付金额'] > 0]  # 数据过滤
     dataArr.append(data)
@@ -90,7 +93,7 @@ aggData['M_S'] = M_S
 aggData['RFM'] = 100*R_S.astype(int) + 10*F_S.astype(int) + 1*M_S.astype(int)
 
 # 将数据导入到RFM.csv文件中
-aggData.to_csv('RFM.csv')
+aggData.to_csv('RFM.csv', encoding='utf-8')
 
 print(aggData)
 
