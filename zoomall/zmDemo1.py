@@ -1,7 +1,6 @@
 # -*- encoding: utf-8 -*-
 
 import pandas as pd
-import numpy as np
 import matplotlib.pyplot as pl
 
 data = pd.read_excel(
@@ -11,9 +10,7 @@ data = pd.read_excel(
            ],
     parse_cols=[5, 6, 7, 8, 9, 10, 11, 12, 13]
 )
-
 # parse_cols = list(np.arange(5, 14))
-
 sku = data.sku.groupby(data['job']).mean()
 jobList = [
     '品牌经理',
@@ -23,12 +20,15 @@ jobList = [
     '以上全部',
     # '其他',
 ]
-pl.rcParams['font.sans-serif'] = ['SimHei']
 sku.index = jobList
-pl.xlabel("工作职责")
-pl.ylabel("SKU数量")
-# pl.legend(loc="best")
-pl.title("SKU和工作职责的关系")
+
+# 画图操作
+# for i, val in enumerate(sku.values.tolist()):   # 给每个柱子设置值
+#     pl.text(i, val, '%.1f' % val, ha='center', va='bottom', fontsize=15)
+pl.rcParams['font.sans-serif'] = ['SimHei']  # 用来正常显示中文标签
+pl.rcParams['axes.unicode_minus'] = False   # 用来正常显示负号
+pl.xlabel("工作职责")  # 设置x轴标记
+pl.ylabel("SKU数量")  # 设置y轴标记
+pl.title("SKU和工作职责的关系")   # 设置图的标题
 sku.plot(kind='bar')
 pl.show()
-print(sku.name)
